@@ -1,6 +1,6 @@
 # CARLA 0.9.15 Digital Twin
 
-A source patch for **CARLA 0.9.15** that extends CARLA's Unreal Engine map-generation workflow for creating a single-level digital twin from paired **OpenStreetMap (`.osm`)** and **OpenDRIVE (`.xodr`)** files.
+A source patch for **CARLA 0.9.15** that extends CARLA's Unreal Engine map-generation workflow for creating a single-level digital twin from paired **OpenStreetMap (`.osm`)** and **OpenDRIVE (`.xodr`)** files, and extends the CARLA Python API with a simulation runner that can record camera footage of scripted ego and NPC vehicle drives.
 
 The patch was developed and tested with CARLA 0.9.15, Unreal Engine 4.26, and Ubuntu 22.04. It modifies CARLA, LibCarla, CarlaTools, the bundled StreetMap plugin, and selected build and navigation components.
 
@@ -18,11 +18,15 @@ The patch was developed and tested with CARLA 0.9.15, Unreal Engine 4.26, and Ub
 - Selectable bidirectional center-line styles.
 - More deterministic multithreaded road and junction mesh generation.
 - Improved tree placement near road edges and junction approaches.
-- Selected CARLA Python navigation and example-script changes used to test generated maps.
+- Extended `automatic_control.py` with reproducible seeds, explicit spawn and target transforms, NPC vehicle agents, simulation time limits, multiple camera views, and MP4 recording via ffmpeg.
+- Selected CARLA Python navigation changes used to test generated maps.
 
 > [!NOTE]
 > The patch contains more than the minimum digital-twin generator changes. Review the changes under `PythonAPI/` before using the patch in a production or research branch.
 
+---
+
+# Part 1: Generating a Digital Twin
 
 ## Prerequisites
 
@@ -154,7 +158,7 @@ A typical workflow is:
 
 If the OSM road network is changed, regenerate the XODR file before running CARLA map generation again.
 
-## 7. Generate a digital twin
+## 6. Generate a digital twin
 
 ### Step 1: Open CARLA Editor
 
@@ -223,7 +227,7 @@ YellowSolid
 WhiteBroken
 ```
 
-## 8. Open and inspect the generated map
+## 7. Open and inspect the generated map
 
 The generated assets are stored under the package path supplied through `-BaseLevelName`. For the example command, the path is:
 
@@ -244,6 +248,175 @@ Right-click `PlayerStart` and select **Snap View to Object**:
 ![Selecting Snap View to Object for PlayerStart](images/snap-view-to-object.png)
 
 The editor viewport should move to the generated area.
+
+---
+
+# Part 2: Running Simulations on the Digital Twin
+
+The patch extends `PythonAPI/examples/automatic_control.py` with reproducible seeds, explicit ego spawn and target locations, NPC vehicle agents, simulation time limits, multiple camera views, and MP4 recording. This section covers environment setup and the full argument reference.
+
+## Prerequisites
+
+- A running CARLA server with the generated digital twin map loaded.
+- Python 3.10 (recommended) or Python 3.8.
+- `ffmpeg` installed and on `PATH` (required for `--record`).
+
+## 1. Create a Python virtual environment
+
+From the CARLA repository root:
+
+```bash
+python3 -m venv carla-venv
+source carla-venv/bin/activate
+```
+
+## 2. Install dependencies
+
+Install requirements from the two relevant packages, then install the CARLA Python wheel from the build output:
+
+```bash
+pip install -r PythonAPI/carla/requirements.txt
+pip install -r PythonAPI/examples/requirements.txt
+pip install PythonAPI/carla/dist/carla-*.whl
+```
+
+The wheel file is built as part of the CARLA build process. If the `dist/` directory is empty, run `make PythonAPI` from the CARLA repository root first.
+
+## 3. Run a simulation
+
+Start the CARLA server and load the target map, then run `automatic_control.py` from the repository root:
+
+```bash
+python PythonAPI/examples/automatic_control.py \
+  --seed 3224900379 \
+  --sync \
+  --host 127.0.0.1 \
+  --port 2000 \
+  --res 1280x720 \
+  --filter vehicle.* \
+  --generation 2 \
+  -a Behavior \
+  -b cautious \
+  --lateral-yield 5.0 \
+  --spawn-transform "142293.9, -116051.6, 50.0, 18.9" \
+  --target-transform "148882.9, -110524.5, 50.0, 94.0" \
+  --num-npcs 20 \
+  --npc-agent Behavior \
+  --npc-behavior cautious \
+  --npc-spacing 25.0 \
+  --max-duration 30.0 \
+  --camera 3 \
+  --no-hud \
+  --record /home/avula/Videos/drive1.mp4 \
+  --record-size 1920x1080 \
+  --record-cameras 1 3
+```
+
+After the simulation ends, a `_details.txt` file is written alongside the recording with the full argument list and a reproduce command.
+
+The command above records cameras 1 (dashcam) and 3 (overhead) simultaneously, producing `drive1_dashcam.mp4` and `drive1_overhead.mp4`. The overhead view of that example run is shown below.
+
+<video src="https://github.com/user-attachments/assets/d7e74708-97b5-4455-9468-5f360566d710" controls width="100%"></video>
+
+## Argument reference
+
+### Connection
+
+| Argument | Default | Description |
+|---|---|---|
+| `--host H` | `127.0.0.1` | IP address of the CARLA server. |
+| `--port P` / `-p P` | `2000` | TCP port of the CARLA server. |
+| `--sync` | off | Enable synchronous simulation mode. Recommended for deterministic recordings. |
+
+### Display
+
+| Argument | Default | Description |
+|---|---|---|
+| `--res WIDTHxHEIGHT` | `1280x720` | pygame window resolution. |
+| `--camera N` | `1` | Initial camera index (see table below). |
+| `--no-hud` | off | Hide the on-screen HUD on startup. Toggle with `H` during the run. |
+
+Camera indices:
+
+| Index | Name | Mount |
+|---|---|---|
+| `0` | chase | Behind and above the vehicle (SpringArm) |
+| `1` | dashcam | Front hood (Rigid) |
+| `2` | front-side | Front angled (SpringArm) |
+| `3` | overhead | Top-down (SpringArm) |
+| `4` | rear-side | Rear angled (Rigid) |
+
+### Actor filter
+
+| Argument | Default | Description |
+|---|---|---|
+| `--filter PATTERN` | `vehicle.*` | Blueprint filter for spawning the ego vehicle. |
+| `--generation G` | `2` | Restrict to a CARLA actor generation (`1`, `2`, or `All`). |
+
+### Ego agent
+
+| Argument | Default | Description |
+|---|---|---|
+| `-a` / `--agent` | `Behavior` | Agent type: `Behavior`, `Basic`, or `Constant`. |
+| `-b` / `--behavior` | `normal` | Behavior profile: `cautious`, `normal`, or `aggressive`. |
+| `--lateral-yield M` | `15.0` | Lateral yield zone width in metres used at roundabout entries. Lower values make the ego enter roundabouts more readily. |
+
+### Spawn and destination
+
+All coordinates are in Unreal Engine centimetres. Yaw is in degrees.
+
+| Argument | Default | Description |
+|---|---|---|
+| `--spawn-point N` | random | Spawn the ego at authored spawn-point index `N`. |
+| `--spawn-transform "X,Y,Z,YAW"` | — | Spawn the ego at an explicit world transform. Overrides `--spawn-point`. |
+| `--target-spawn-point N` | random | Set the initial destination to authored spawn-point index `N`. |
+| `--target-transform "X,Y,Z,YAW"` | — | Set the initial destination to an explicit world transform. Overrides `--target-spawn-point`. |
+
+When `--target-transform` or `--target-spawn-point` is set and `--max-duration` is not set, the simulation stops once the ego reaches the target. When `--max-duration` is also set, the ego continues roaming after reaching the target until the time limit expires.
+
+### NPC vehicles
+
+| Argument | Default | Description |
+|---|---|---|
+| `--num-npcs N` | `0` | Number of NPC vehicles to spawn. |
+| `--npc-agent` | `Basic` | Agent type for NPC vehicles: `Behavior`, `Basic`, or `Constant`. |
+| `--npc-behavior` | `normal` | Behavior profile for NPC vehicles: `cautious`, `normal`, or `aggressive`. |
+| `--npc-spacing M` | `15.0` | Minimum distance in metres between any two NPC vehicles, and between each NPC and the ego, at spawn time. |
+
+### Simulation control
+
+| Argument | Default | Description |
+|---|---|---|
+| `--seed S` / `-s S` | random | Integer seed for the random number generator. Using the same seed with the same arguments reproduces the same vehicle selection, spawn positions, and NPC placement. |
+| `--max-duration S` | `30.0` if no target, else unlimited | Maximum simulation time in seconds. |
+
+### Recording
+
+Recording requires `ffmpeg` to be installed and available on `PATH`. Video is encoded with H.264 at 20 fps and CRF 18.
+
+| Argument | Default | Description |
+|---|---|---|
+| `--record OUTPUT.mp4` | off | Save a clean camera recording (no HUD overlay) to this MP4 path. |
+| `--record-size WxH` | window size | Resolution of the recorded video, e.g. `1920x1080`. Independent of the pygame window resolution. |
+| `--record-cameras ID [ID ...]` | — | Record multiple camera views simultaneously. Each camera is saved to a separate file with a name suffix, e.g. `drive1_dashcam.mp4` and `drive1_overhead.mp4`. |
+
+When `--record-cameras` lists more than one ID, or when any ID is specified with `--record-cameras`, the output filename is always suffixed with the camera name regardless of how many cameras are selected. The camera name mapping is:
+
+| ID | Suffix |
+|---|---|
+| `0` | `_chase` |
+| `1` | `_dashcam` |
+| `2` | `_frontside` |
+| `3` | `_overhead` |
+| `4` | `_rearside` |
+
+### Miscellaneous
+
+| Argument | Default | Description |
+|---|---|---|
+| `-v` / `--verbose` | off | Print debug information. |
+
+---
 
 ## Acknowledgements
 
