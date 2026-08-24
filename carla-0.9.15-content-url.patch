@@ -10,3 +10,16 @@ index b5d3684d8..dca07dff0 100755
  
  VERSION_FILE="${CONTENT_FOLDER}/.version"
  
+diff --git a/Util/BuildTools/Setup.sh b/Util/BuildTools/Setup.sh
+index 9aa65533b..8d53daab4 100755
+--- a/Util/BuildTools/Setup.sh
++++ b/Util/BuildTools/Setup.sh
+@@ -91,7 +91,7 @@ for PY_VERSION in ${PY_VERSION_LIST[@]} ; do
+     BOOST_PACKAGE_BASENAME=boost_${BOOST_VERSION//./_}
+ 
+     log "Retrieving boost."
+-    wget "https://boostorg.jfrog.io/artifactory/main/release/${BOOST_VERSION}/source/${BOOST_PACKAGE_BASENAME}.tar.gz" || true
++    wget "https://archives.boost.org/release/${BOOST_VERSION}/source/${BOOST_PACKAGE_BASENAME}.tar.gz" || true
+     # try to use the backup boost we have in Jenkins
+     if [[ ! -f "${BOOST_PACKAGE_BASENAME}.tar.gz" ]] ; then
+       log "Using boost backup"

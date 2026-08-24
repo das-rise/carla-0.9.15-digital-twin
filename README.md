@@ -57,6 +57,8 @@ git apply --whitespace=error-all \
   /path/to/carla-0.9.15-content-url.patch
 ```
 
+The content URL patch also updates CARLA's Boost download URL in `Util/BuildTools/Setup.sh`. At the time of writing, the upstream Boost URL used by CARLA redirects to an HTML page instead of the Boost source archive.
+
 Then run:
 
 ```bash
