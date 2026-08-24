@@ -64,23 +64,31 @@ Then run:
 ./Update.sh
 ```
 
-## 3. Build LibCarla
+## 3. Build and launch CARLA Editor
 
-Build LibCarla once before applying the patch:
+Before applying the digital-twin source patch, build and launch the CARLA Unreal Editor:
 
 ```bash
-make LibCarla
+make launch ARGS="--editor-flags -norelativemousemode"
+```
+
+The `-norelativemousemode` option is useful on Linux machines accessed through remote desktop software because it can avoid mouse capture and cursor movement problems in Unreal Editor.
+
+For a standard local launch, use:
+
+```bash
+make launch
 ```
 
 To retain a build log:
 
 ```bash
-make LibCarla 2>&1 | tee build.log
+make launch 2>&1 | tee build.log
 ```
 
 ## 4. Apply the patch
 
-After CARLA content has been downloaded and LibCarla has built successfully, apply the digital-twin source patch from the CARLA repository root:
+After CARLA content has been downloaded and the editor has built successfully, stop the editor. Then apply the digital-twin source patch from the CARLA repository root:
 
 ```bash
 git apply --whitespace=error-all \
@@ -119,8 +127,6 @@ Build and launch the patched editor with:
 ```bash
 make launch ARGS="--editor-flags -norelativemousemode"
 ```
-
-The `-norelativemousemode` option is useful on Linux machines accessed through remote desktop software because it can avoid mouse capture and cursor movement problems in Unreal Editor.
 
 For a standard local launch, use:
 
