@@ -13011,7 +13011,7 @@ index 5f1dc68d2..82474868e 100644
  		PrivateIncludePaths.AddRange(
  			new string[] {
  				// ... add other private include paths required here ...
-+        Path.Combine(ModuleDirectory, "../../../StreetMap/Source/StreetMapRuntime/Public"),
++        Path.Combine(ModuleDirectory, "../../../Streetmap/Source/StreetMapRuntime/Public"),
  			}
  			);
  
@@ -16374,10 +16374,10 @@ index e62a9dcc1..d4cedec2f 100644
 \ No newline at end of file
 +target_link_libraries(osm-world-renderer lunasvg)
 +target_link_libraries(osm-world-renderer plutovg)
-diff --git a/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapImporting/Private/OSMFile.cpp b/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapImporting/Private/OSMFile.cpp
+diff --git a/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapImporting/Private/OSMFile.cpp b/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapImporting/Private/OSMFile.cpp
 index 1fe1f25..0336e98 100644
---- a/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapImporting/Private/OSMFile.cpp
-+++ b/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapImporting/Private/OSMFile.cpp
+--- a/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapImporting/Private/OSMFile.cpp
++++ b/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapImporting/Private/OSMFile.cpp
 @@ -94,6 +94,7 @@ bool FOSMFile::ProcessElement( const TCHAR* ElementName, const TCHAR* ElementDat
  			CurrentNodeInfo = new FOSMNodeInfo();
  			CurrentNodeInfo->Latitude = 0.0;
@@ -16628,10 +16628,10 @@ index 1fe1f25..0336e98 100644
  
  	return true;
  }
-diff --git a/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapImporting/Private/StreetMapFactory.cpp b/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapImporting/Private/StreetMapFactory.cpp
+diff --git a/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapImporting/Private/StreetMapFactory.cpp b/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapImporting/Private/StreetMapFactory.cpp
 index aeecde0..f989ef7 100644
---- a/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapImporting/Private/StreetMapFactory.cpp
-+++ b/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapImporting/Private/StreetMapFactory.cpp
+--- a/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapImporting/Private/StreetMapFactory.cpp
++++ b/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapImporting/Private/StreetMapFactory.cpp
 @@ -190,7 +190,7 @@ bool UStreetMapFactory::LoadFromOpenStreetMapXMLFile( UStreetMap* StreetMap, FSt
  		UStreetMap& StreetMapRef, 
  		const FOSMFile::FOSMWayInfo& OSMWay ) -> bool
@@ -16715,10 +16715,10 @@ index aeecde0..f989ef7 100644
  
    return Result;
  }
-diff --git a/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapImporting/Private/StreetMapImportBlueprintLibrary.cpp b/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapImporting/Private/StreetMapImportBlueprintLibrary.cpp
+diff --git a/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapImporting/Private/StreetMapImportBlueprintLibrary.cpp b/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapImporting/Private/StreetMapImportBlueprintLibrary.cpp
 index f88d367..be68d33 100644
---- a/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapImporting/Private/StreetMapImportBlueprintLibrary.cpp
-+++ b/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapImporting/Private/StreetMapImportBlueprintLibrary.cpp
+--- a/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapImporting/Private/StreetMapImportBlueprintLibrary.cpp
++++ b/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapImporting/Private/StreetMapImportBlueprintLibrary.cpp
 @@ -42,7 +42,8 @@ UStreetMap* UStreetMapImportBlueprintLibrary::ImportStreetMap(FString Path, FStr
    UStreetMapFactory* Factory = NewObject<UStreetMapFactory>();
    Factory->LatLonOrigin = OriginLatLon;
@@ -16729,10 +16729,10 @@ index f88d367..be68d33 100644
  
    if(NewAssets.Num() != 0){
      return Cast<UStreetMap>(NewAssets[0]);
-diff --git a/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapImporting/Public/OSMFile.h b/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapImporting/Public/OSMFile.h
+diff --git a/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapImporting/Public/OSMFile.h b/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapImporting/Public/OSMFile.h
 index 5dafeea..4b54ab5 100644
---- a/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapImporting/Public/OSMFile.h
-+++ b/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapImporting/Public/OSMFile.h
+--- a/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapImporting/Public/OSMFile.h
++++ b/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapImporting/Public/OSMFile.h
 @@ -124,12 +124,15 @@ public:
  
  
@@ -16780,10 +16780,10 @@ index 5dafeea..4b54ab5 100644
  };
  
  
-diff --git a/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapImporting/Public/StreetMapFactory.h b/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapImporting/Public/StreetMapFactory.h
+diff --git a/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapImporting/Public/StreetMapFactory.h b/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapImporting/Public/StreetMapFactory.h
 index 57cec6a..0896c40 100644
---- a/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapImporting/Public/StreetMapFactory.h
-+++ b/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapImporting/Public/StreetMapFactory.h
+--- a/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapImporting/Public/StreetMapFactory.h
++++ b/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapImporting/Public/StreetMapFactory.h
 @@ -9,7 +9,7 @@
   * Import factory object for OpenStreetMap assets
   */
@@ -16806,10 +16806,10 @@ index 57cec6a..0896c40 100644
  	/** Static: Latitude/longitude scale factor */
  	static const double LatitudeLongitudeScale;
  };
-diff --git a/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapImporting/Public/StreetMapImportBlueprintLibrary.h b/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapImporting/Public/StreetMapImportBlueprintLibrary.h
+diff --git a/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapImporting/Public/StreetMapImportBlueprintLibrary.h b/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapImporting/Public/StreetMapImportBlueprintLibrary.h
 index d50b0e5..7707fa9 100644
---- a/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapImporting/Public/StreetMapImportBlueprintLibrary.h
-+++ b/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapImporting/Public/StreetMapImportBlueprintLibrary.h
+--- a/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapImporting/Public/StreetMapImportBlueprintLibrary.h
++++ b/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapImporting/Public/StreetMapImportBlueprintLibrary.h
 @@ -13,7 +13,7 @@
   * Import factory object for OpenStreetMap assets
   */
@@ -16819,10 +16819,10 @@ index d50b0e5..7707fa9 100644
  {
  	GENERATED_BODY()
  public:
-diff --git a/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapImporting/StreetMapImporting.Build.cs b/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapImporting/StreetMapImporting.Build.cs
+diff --git a/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapImporting/StreetMapImporting.Build.cs b/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapImporting/StreetMapImporting.Build.cs
 index 2d52cce..e28b6b8 100644
---- a/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapImporting/StreetMapImporting.Build.cs
-+++ b/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapImporting/StreetMapImporting.Build.cs
+--- a/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapImporting/StreetMapImporting.Build.cs
++++ b/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapImporting/StreetMapImporting.Build.cs
 @@ -1,4 +1,4 @@
 -// Copyright 2017 Mike Fricker. All Rights Reserved.
 +using System.IO;
@@ -16839,10 +16839,10 @@ index 2d52cce..e28b6b8 100644
      }
    }
  }
-diff --git a/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapRuntime/Private/StreetMapComponent.cpp b/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapRuntime/Private/StreetMapComponent.cpp
+diff --git a/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapRuntime/Private/StreetMapComponent.cpp b/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapRuntime/Private/StreetMapComponent.cpp
 index e8a7cd1..74c6d80 100644
---- a/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapRuntime/Private/StreetMapComponent.cpp
-+++ b/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapRuntime/Private/StreetMapComponent.cpp
+--- a/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapRuntime/Private/StreetMapComponent.cpp
++++ b/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapRuntime/Private/StreetMapComponent.cpp
 @@ -13,6 +13,7 @@
  #include "ProceduralMeshComponent.h"
  #include "Carla/OpenDrive/OpenDriveGenerator.h"
@@ -17206,10 +17206,10 @@ index e8a7cd1..74c6d80 100644
            BNormals.Add(FVector::UpVector);
          }
        }
-diff --git a/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapRuntime/Private/StreetMapSceneProxy.cpp b/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapRuntime/Private/StreetMapSceneProxy.cpp
+diff --git a/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapRuntime/Private/StreetMapSceneProxy.cpp b/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapRuntime/Private/StreetMapSceneProxy.cpp
 index 43c5555..e5886c3 100644
---- a/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapRuntime/Private/StreetMapSceneProxy.cpp
-+++ b/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapRuntime/Private/StreetMapSceneProxy.cpp
+--- a/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapRuntime/Private/StreetMapSceneProxy.cpp
++++ b/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapRuntime/Private/StreetMapSceneProxy.cpp
 @@ -12,6 +12,9 @@
  FStreetMapSceneProxy::FStreetMapSceneProxy(const UStreetMapComponent* InComponent)
  	: FPrimitiveSceneProxy(InComponent),
@@ -17365,10 +17365,10 @@ index 43c5555..e5886c3 100644
  			}
  		}
  	}
-diff --git a/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapRuntime/Public/PolygonTools.h b/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapRuntime/Public/PolygonTools.h
+diff --git a/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapRuntime/Public/PolygonTools.h b/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapRuntime/Public/PolygonTools.h
 index ce18b8d..e8c64e0 100644
---- a/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapRuntime/Public/PolygonTools.h
-+++ b/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapRuntime/Public/PolygonTools.h
+--- a/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapRuntime/Public/PolygonTools.h
++++ b/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapRuntime/Public/PolygonTools.h
 @@ -1,7 +1,9 @@
  // Copyright 2017 Mike Fricker. All Rights Reserved.
  #pragma once
@@ -17380,10 +17380,10 @@ index ce18b8d..e8c64e0 100644
  {
  
  public:
-diff --git a/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapRuntime/Public/StreetMap.h b/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapRuntime/Public/StreetMap.h
+diff --git a/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapRuntime/Public/StreetMap.h b/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapRuntime/Public/StreetMap.h
 index 6207551..bed101e 100644
---- a/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapRuntime/Public/StreetMap.h
-+++ b/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapRuntime/Public/StreetMap.h
+--- a/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapRuntime/Public/StreetMap.h
++++ b/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapRuntime/Public/StreetMap.h
 @@ -307,6 +307,17 @@ struct STREETMAPRUNTIME_API FStreetMapBuilding
  };
  
@@ -17447,10 +17447,10 @@ index 6207551..bed101e 100644
  	/** 2D bounds (min) of this map's roads and buildings */
  	UPROPERTY( Category=StreetMap, VisibleAnywhere)
  	FVector2D BoundsMin;
-diff --git a/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapRuntime/Public/StreetMapComponent.h b/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapRuntime/Public/StreetMapComponent.h
+diff --git a/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapRuntime/Public/StreetMapComponent.h b/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapRuntime/Public/StreetMapComponent.h
 index 188bdb9..ed42f46 100644
---- a/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapRuntime/Public/StreetMapComponent.h
-+++ b/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapRuntime/Public/StreetMapComponent.h
+--- a/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapRuntime/Public/StreetMapComponent.h
++++ b/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapRuntime/Public/StreetMapComponent.h
 @@ -73,9 +73,12 @@ public:
  	*/
  	int32 GetNumMeshSections() const
@@ -17480,10 +17480,10 @@ index 188bdb9..ed42f46 100644
 +	/** Index in the Indices array where wall geometry starts; everything before is roof */
 +	int32 WallFirstIndex;
  };
-diff --git a/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapRuntime/Public/StreetMapSceneProxy.h b/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapRuntime/Public/StreetMapSceneProxy.h
+diff --git a/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapRuntime/Public/StreetMapSceneProxy.h b/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapRuntime/Public/StreetMapSceneProxy.h
 index ce7e0d6..30ff3ec 100644
---- a/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapRuntime/Public/StreetMapSceneProxy.h
-+++ b/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapRuntime/Public/StreetMapSceneProxy.h
+--- a/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapRuntime/Public/StreetMapSceneProxy.h
++++ b/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapRuntime/Public/StreetMapSceneProxy.h
 @@ -87,7 +87,7 @@ protected:
  	void InitResources();
  
@@ -17506,10 +17506,10 @@ index ce7e0d6..30ff3ec 100644
  	const UStreetMapComponent* StreetMapComp;
  
  	// The Collision Response of the component being proxied
-diff --git a/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapRuntime/StreetMapRuntime.Build.cs b/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapRuntime/StreetMapRuntime.Build.cs
+diff --git a/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapRuntime/StreetMapRuntime.Build.cs b/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapRuntime/StreetMapRuntime.Build.cs
 index 3623449..df354f6 100644
---- a/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapRuntime/StreetMapRuntime.Build.cs
-+++ b/Unreal/CarlaUE4/Plugins/StreetMap/Source/StreetMapRuntime/StreetMapRuntime.Build.cs
+--- a/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapRuntime/StreetMapRuntime.Build.cs
++++ b/Unreal/CarlaUE4/Plugins/Streetmap/Source/StreetMapRuntime/StreetMapRuntime.Build.cs
 @@ -1,4 +1,4 @@
 -// Copyright 2017 Mike Fricker. All Rights Reserved.
 +using System.IO;
@@ -17526,11 +17526,11 @@ index 3623449..df354f6 100644
      }
    }
  }
-diff --git a/Unreal/CarlaUE4/Plugins/Streetmap b/Unreal/CarlaUE4/Plugins/Streetmap
+diff --git a/Unreal/CarlaUE4/Plugins/StreetMap b/Unreal/CarlaUE4/Plugins/StreetMap
 new file mode 120000
-index 000000000..5aa71c6b6
+index 000000000..d835e2b85
 --- /dev/null
-+++ b/Unreal/CarlaUE4/Plugins/Streetmap
++++ b/Unreal/CarlaUE4/Plugins/StreetMap
 @@ -0,0 +1 @@
-+StreetMap
++Streetmap
 \ No newline at end of file

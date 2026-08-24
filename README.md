@@ -95,23 +95,23 @@ git apply --whitespace=error-all \
   /path/to/carla-0.9.15-digital-twin.patch
 ```
 
-### Existing `Streetmap` symlink
+### Existing `StreetMap` symlink
 
 The patch includes this case-sensitive symbolic link:
 
 ```text
-Unreal/CarlaUE4/Plugins/Streetmap -> StreetMap
+Unreal/CarlaUE4/Plugins/StreetMap -> Unreal/CarlaUE4/Plugins/Streetmap
 ```
 
 If `git apply` reports:
 
 ```text
-error: Unreal/CarlaUE4/Plugins/Streetmap: already exists in working directory
+error: Unreal/CarlaUE4/Plugins/StreetMap: already exists in working directory
 ```
 remove only the link and apply the patch again:
 
 ```bash
-rm Unreal/CarlaUE4/Plugins/Streetmap
+rm Unreal/CarlaUE4/Plugins/StreetMap
 
 git apply --check --whitespace=error-all \
   /path/to/carla-0.9.15-digital-twin.patch
