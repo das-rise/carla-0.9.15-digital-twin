@@ -1,0 +1,12 @@
+diff --git a/Update.sh b/Update.sh
+index b5d3684d8..dca07dff0 100755
+--- a/Update.sh
++++ b/Update.sh
+@@ -47,6 +47,6 @@ CONTENT_FOLDER="${SCRIPT_DIR}/Unreal/CarlaUE4/Content/Carla"
+ 
+ CONTENT_ID=$(tac $SCRIPT_DIR/Util/ContentVersions.txt | egrep -m 1 . | rev | cut -d' ' -f1 | rev)
+-CONTENT_LINK=http://carla-assets.s3.amazonaws.com/${CONTENT_ID}.tar.gz
++CONTENT_LINK=https://carla-assets.s3.us-east-005.backblazeb2.com/20231108_c5101a5.tar.gz
+ 
+ VERSION_FILE="${CONTENT_FOLDER}/.version"
+ 

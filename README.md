@@ -46,9 +46,40 @@ git checkout --detach d7b45c1e159e6d13296f7a3a4e8b13e6c2d62c18
 ```
 
 
-## 2. Apply the patch
+## 2. Update CARLA content
 
-From the CARLA repository root, apply the path in this repo:
+Before applying the digital-twin source patch, follow the **Get assets** or **Download the CARLA content** section of the official [CARLA 0.9.15 Linux build guide](https://carla.readthedocs.io/en/0.9.15/build_linux/).
+
+At the time of writing, the default CARLA content URL used by `Update.sh` is not serving the CARLA 0.9.15 content archive. Apply the small content URL workaround patch first:
+
+```bash
+git apply --whitespace=error-all \
+  /path/to/carla-0.9.15-content-url.patch
+```
+
+Then run:
+
+```bash
+./Update.sh
+```
+
+## 3. Build LibCarla
+
+Build LibCarla once before applying the patch:
+
+```bash
+make LibCarla
+```
+
+To retain a build log:
+
+```bash
+make LibCarla 2>&1 | tee build.log
+```
+
+## 4. Apply the patch
+
+After CARLA content has been downloaded and LibCarla has built successfully, apply the digital-twin source patch from the CARLA repository root:
 
 ```bash
 git apply --whitespace=error-all \
@@ -80,16 +111,9 @@ git apply --whitespace=error-all \
   /path/to/carla-0.9.15-digital-twin.patch
 ```
 
-## 3. Update CARLA content
+## 5. Launch patched CARLA Editor
 
-After applying the patch, follow the **Get assets** or **Download the CARLA content** section of the official [CARLA 0.9.15 Linux build guide](https://carla.readthedocs.io/en/0.9.15/build_linux/) and run:
-
-```bash
-./Update.sh
-```
-## 4. Build and launch CARLA Editor
-
-Build and launch the CARLA Unreal Editor:
+Build and launch the patched editor with:
 
 ```bash
 make launch ARGS="--editor-flags -norelativemousemode"
@@ -109,7 +133,7 @@ To retain a build log:
 make launch 2>&1 | tee build.log
 ```
 
-If the project was built before applying the patch, clear stale Unreal build output first:
+If the patched build reports stale Unreal build output or generated-file errors, clear the previous editor build output first:
 
 ```bash
 rm -rf Unreal/CarlaUE4/Intermediate
@@ -128,7 +152,7 @@ Then rebuild:
 make launch 2>&1 | tee build.log
 ```
 
-## 5. Prepare the OSM and XODR inputs
+## 6. Prepare the OSM and XODR inputs
 
 The OSM and XODR files must describe the same geographic area and use compatible georeferencing. Misaligned inputs can place roads, buildings, terrain, forests, or trees at incorrect offsets.
 
@@ -158,7 +182,7 @@ A typical workflow is:
 
 If the OSM road network is changed, regenerate the XODR file before running CARLA map generation again.
 
-## 6. Generate a digital twin
+## 7. Generate a digital twin
 
 ### Step 1: Open CARLA Editor
 
@@ -227,7 +251,7 @@ YellowSolid
 WhiteBroken
 ```
 
-## 7. Open and inspect the generated map
+## 8. Open and inspect the generated map
 
 The generated assets are stored under the package path supplied through `-BaseLevelName`. For the example command, the path is:
 
