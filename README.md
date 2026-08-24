@@ -32,7 +32,6 @@ The patch was developed and tested with CARLA 0.9.15, Unreal Engine 4.26, and Ub
 
 - Ubuntu 22.04
 - Unreal Engine 4.26 configured for CARLA, following the official [CARLA 0.9.15 Linux build guide, Part One: Prerequisites](https://carla.readthedocs.io/en/0.9.15/build_linux/#part-one-prerequisites).
-- CARLA content assets
 - A matching `.osm` and `.xodr` pair for the same geographic area
 
 ## 1. Clone the CARLA source
