@@ -19,7 +19,7 @@ index 9aa65533b..8d53daab4 100755
  
      log "Retrieving boost."
 -    wget "https://boostorg.jfrog.io/artifactory/main/release/${BOOST_VERSION}/source/${BOOST_PACKAGE_BASENAME}.tar.gz" || true
-+    wget "https://archives.boost.org/release/${BOOST_VERSION}/source/${BOOST_PACKAGE_BASENAME}.tar.gz" || true
++    wget -O "${BOOST_PACKAGE_BASENAME}.tar.gz" "https://archives.boost.org/release/${BOOST_VERSION}/source/${BOOST_PACKAGE_BASENAME}.tar.gz" || true
      # try to use the backup boost we have in Jenkins
      if [[ ! -f "${BOOST_PACKAGE_BASENAME}.tar.gz" ]] ; then
        log "Using boost backup"
