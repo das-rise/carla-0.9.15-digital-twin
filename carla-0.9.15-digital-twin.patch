@@ -16344,19 +16344,6 @@ index 7bab03f1a..31b09b1ca 100644
  }
  
  function copy_if_changed {
-diff --git a/Util/BuildTools/Setup.sh b/Util/BuildTools/Setup.sh
-index 9aa65533b..654e9d6db 100755
---- a/Util/BuildTools/Setup.sh
-+++ b/Util/BuildTools/Setup.sh
-@@ -339,7 +339,7 @@ unset RECAST_BASENAME
- # ==============================================================================
- 
- LIBPNG_VERSION=1.6.37
--LIBPNG_REPO=https://sourceforge.net/projects/libpng/files/libpng16/${LIBPNG_VERSION}/libpng-${LIBPNG_VERSION}.tar.xz
-+LIBPNG_REPO=https://sourceforge.net/projects/libpng/files/libpng16/older-releases/${LIBPNG_VERSION}/libpng-${LIBPNG_VERSION}.tar.xz
- LIBPNG_BASENAME=libpng-${LIBPNG_VERSION}
- LIBPNG_INSTALL=${LIBPNG_BASENAME}-install
- 
 diff --git a/Util/BuildTools/Vars.mk b/Util/BuildTools/Vars.mk
 index 3cfd55125..6bd7c7916 100644
 --- a/Util/BuildTools/Vars.mk
