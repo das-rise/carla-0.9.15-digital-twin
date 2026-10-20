@@ -95,6 +95,35 @@ Start the container as shown above. Graphics and GUI use of the editor needs ext
 
 To keep your own data, mount extra folders (for example, your map files) into the container with additional `-v` options.
 
+## Cooking: `cook-carla-map.sh` vs `cook-carla-map-full-build.sh`
+
+Both scripts take a Digital Twin Tool map folder as their argument.
+
+**`cook-carla-map.sh`** (fast) cooks only your map into a small package (`.tar.gz`) that is meant to be imported into a prebuilt CARLA binary with `ImportAssets.sh`. Known problem: Digital Twin maps crash prebuilt 0.9.15 binaries at runtime. The cause is a bug in the stock UE 4.26 distance-field code that CARLA fixed in its engine fork after the 0.9.15 release (see [carla-simulator/carla#8696](https://github.com/carla-simulator/carla/issues/8696), engine commit `a288ae07` on the `CarlaUnreal/UnrealEngine` `carla` branch). The prebuilt binaries predate that fix; an image built with this repository's build script does not.
+
+**`cook-carla-map-full-build.sh`** (slow) is the alternative: it bakes the map into a complete CARLA release, so the map and the binaries all come from the same (fixed) engine. Concretely it
+
+1. copies the map folder into `Content/` (location detected from the `.umap`, as in the other script),
+2. registers the map in `Unreal/CarlaUE4/Config/DefaultGame.ini` (`+MapsToCook=...`) and stages its `OpenDrive/` (and `Nav/`, `TM/`) folder as UFS, so the server can read the `.xodr` at runtime,
+3. runs the official release pipeline `make package` (cooks **all** maps plus yours, builds the CARLA binaries),
+4. extracts the resulting `CARLA_<version>_<map>.tar.gz` into `<output>/CARLA_<version>_<map>/` on the host and builds a lightweight runtime image (default `carla-runtime:0.9.15`: `ubuntu:18.04` + `libsdl2-2.0 libvulkan1 libomp5`, no CARLA content baked in),
+5. prints the command to run the build mounted from the host:
+
+```bash
+cook-carla-map-full-build.sh [options] <map-folder> [map-name]
+
+# afterwards (command also printed at the end of the run):
+docker run --rm -it --gpus all --net=host \
+  -v "$PWD/carla-builds/CARLA_0.9.15-dirty_<map>:/carla" \
+  carla-runtime:0.9.15 ./CarlaUE4.sh -map=/Game/CustomMaps/<folder>/<map>
+```
+
+Useful options: `--set-default-map` (load your map at startup without `-map=`), `--config {Shipping,Development,Debug}`, `--archive-sufix`, `--runtime-image TAG`, `--runtime-base IMAGE` (e.g. `ubuntu:20.04` if you hit missing glibc symbols), `--no-runtime-image`. The script verifies that the `.xodr` made it into the final package and, on failure, detects the distance-field crash signature from #8696 in the log.
+
+**Costs:** this is a full release build, not a per-map cook. Expect several hours (all CARLA maps are cooked and the client binaries are compiled) and roughly 60–80 GB of free space on the Docker volume (staging folder + tarball + extracted build). The first run also builds the Python API (`Build/` keeps it cached for later runs).
+
+If a full build fails with the distance-field crash even though the map cooked fine before, the editor image's engine fork is older than the fix: rebuild the editor image (fresh clone of the `carla` branch) and retry.
+
 ## Troubleshooting
 
 **The Unreal Engine `git clone` fails** (for example "repository not found" or an authentication error). Check that your GitHub account is a member of the Epic Games organisation (accept the invitation email or the invitation on GitHub), that `EPIC_USER` and `EPIC_PASS` are correct, and that the token has read access to private repositories.
