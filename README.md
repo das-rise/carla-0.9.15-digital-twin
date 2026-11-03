@@ -287,7 +287,7 @@ The editor viewport should move to the generated area.
 The generated map is not yet loadable in a packaged CARLA. The `map_cooking/`
 folder contains the scripts to *cook* it (in Unreal Engine terms) into an importable package and bring it
 into a running CARLA installation. See
-[`map_cooking/readme.md`](map_cooking/readme.md) for the full instructions.
+[`map_cooking/readme.md`](map_cooking/README.md) for the full instructions.
 
 ---
 
