@@ -106,6 +106,6 @@ written to the `Package.json`):
 ```
 
 
-> [!IMPORTANT] CARLA compatibility
+> [!IMPORTANT]
 >
 > For the map to work in CARLA, you need a CARLA build with the correct revision and the patches from this repository applied. One easy way to obtain a compatible CARLA build is to use the one from https://github.com/das-rise/rise-carla-runner#running-digital-twin-tool-maps.
