@@ -1,24 +1,31 @@
-# CARLA 0.9.15 Editor Image (Ubuntu 20.04)
+# Cooking Digital Twin maps for CARLA 0.9.15
 
-`build-carla-0.9.15-editor-ubuntu20.04-cached.sh` builds a Docker image containing:
+This folder turns a map created with the CARLA Digital Twin Tool into a cooked
+package that can be imported into a CARLA installation and used for
+simulations. A map folder as saved by the tool contains the `.umap`, its
+assets (`Static/`, `StreetMap/`, ...) and `OpenDrive/<map-name>.xodr`.
 
-- the CARLA-patched **Unreal Engine 4.26** (`CarlaUnreal/UnrealEngine`, branch `carla`)
-- **CARLA 0.9.15** source, downloaded Content, and the built **CarlaUE4 Editor** plugins
+The workflow is two steps:
 
-The image is intended for opening the project in the Unreal Editor and **cooking maps**, for example maps produced with the CARLA Digital Twin Tool.
+1. **Build the cooking image once** — `build-carla-0.9.15-editor-ubuntu20.04-cached.sh`
+2. **Cook each map** — `cook-carla-map.sh <map-folder>`
 
 ## Requirements
 
-| Item | Notes |
-|------|-------|
-| Docker with BuildKit/Buildx | `docker buildx version` must work |
-| GitHub account in the Epic Games organisation | The Unreal Engine source is a private repository (`CarlaUnreal/UnrealEngine`). Your GitHub account must be a member of the **Epic Games GitHub organisation** to pull it, otherwise the clone fails. Membership requires an Epic Games account linked to your GitHub account. See Epic's instructions for accessing the Unreal Engine source on GitHub, and accept the organisation invitation you receive |
-| GitHub token | A personal access token with read access to the repository |
-| Disk space | Very large. Unreal Engine plus the CARLA content and build products need well over 100 GB. Plan for more |
-| Time and RAM | The Unreal Engine build takes hours. Plenty of RAM and CPU cores help a lot |
-| Network | The Content archive and several dependencies are downloaded |
+| Item                                          | Notes                                                        |
+| --------------------------------------------- | ------------------------------------------------------------ |
+| Docker with BuildKit/Buildx                   | `docker buildx version` must work                            |
+| GitHub account in the Epic Games organisation | The Unreal Engine source (`CarlaUnreal/UnrealEngine`) is private. **Your account must be a member of the Epic Games GitHub organisation**, plus a token with read access |
+| Disk space                                    | Well over 100 GB (image, `carla-build/` dependencies, cook output) |
+| Time and RAM                                  | The image build takes hours; plenty of RAM and CPU cores help a lot |
+| Network                                       | GitHub, the Backblaze CARLA content mirror, SourceForge, boost archive |
 
-## Usage
+## Step 1: Build the cooking image
+
+`build-carla-0.9.15-editor-ubuntu20.04-cached.sh` builds a Docker image
+(default tag `carla-editor:0.9.15-ubuntu20.04`) containing the CARLA-patched
+Unreal Engine 4.26 (branch `carla`), the CARLA 0.9.15 source with Content, and
+the built editor plugins.
 
 ```bash
 export EPIC_USER="your-github-username"
@@ -28,125 +35,77 @@ bash build-carla-0.9.15-editor-ubuntu20.04-cached.sh
 
 Options:
 
-- `--no-cache` disables the Docker layer cache for the base image. Not recommended for normal retries, because it forces the multi-hour Unreal Engine build to run again.
-- `--help` prints usage.
+| Option | Meaning |
+|--------|---------|
+| `--no-cache` | Disable the layer cache for the base image. Not recommended: it reruns the multi-hour engine build |
+| `--help` | Print usage |
 
-Environment variables (all optional):
+Environment variables:
 
 | Variable | Default | Meaning |
 |----------|---------|---------|
+| `EPIC_USER` | (required) | a GitHub username for a user that is member of the Epc Games GitHub organization |
+| `EPIC_PASS` | (required) | a corresponding GitHub token with read access |
 | `IMAGE_NAME` | `carla-editor:0.9.15-ubuntu20.04` | Tag of the final image |
 | `CARLA_BRANCH` | `0.9.15` | CARLA git branch or tag |
-| `UNREAL_BRANCH` | `carla` | CARLA Unreal Engine branch |
+| `UNREAL_BRANCH` | `carla` | Unreal Engine branch |
 | `BUILD_DIR` | `<script folder>/carla-build` | Host folder used as CARLA's `Build/` directory |
 
-Your GitHub credentials are passed to the build as a BuildKit secret. They are not stored in an image layer, and the temporary credential file is deleted when the script exits.
+The build has two phases: a layer-cached `docker buildx build` (engine, CARLA
+source, Content download) and `make setup` + `make CarlaUE4Editor` in a
+container that is committed as the final image. Credentials are passed as a
+BuildKit secret and never end up in an image layer.
 
-## How it works
+**Note:** `Build/` (third-party dependencies) is not part of the image. It
+stays on the host in `BUILD_DIR` and must be mounted when you run the image.
+Do not delete it unless you want to rebuild the dependencies.
 
-The build has two phases.
-
-**Phase 1: base image** (`docker buildx build`, fully layer-cached)
-
-1. Ubuntu 20.04 and the CARLA toolchain (clang-10, cmake, and so on)
-2. Unreal Engine 4.26: clone, `Setup.sh`, `GenerateProjectFiles.sh`, `make`. This is the expensive layer
-3. CARLA source clone
-4. Patch of `Update.sh` (dead download URL replaced, plus an archive cache) and download of the Content
-5. Patches to CARLA's build scripts (replacement download URLs and a few fixes). Each patch is verified with `grep`, so the build fails immediately if a patch did not apply
-6. `automake`, which CARLA's `Setup.sh` needs for building patchelf
-
-The result is tagged `<IMAGE_NAME>-base`.
-
-**Phase 2: CARLA build** (`docker run` + `docker commit`)
-
-A container from the base image runs `make setup` and `make CarlaUE4Editor` with the host folder `carla-build/` mounted as `/home/carla/carla/Build`. The container is then committed as the final image.
-
-Why two phases: Docker cannot bind-mount a host folder during `docker build`. Running the CARLA build in `docker run` lets the third-party dependencies persist on the host, so a failed or interrupted run resumes instead of rebuilding everything.
-
-## Important: the final image does not contain `Build/`
-
-The bind-mounted `Build/` folder is not committed into the image. It stays on the host in `carla-build/`. **Always mount it when you run the image**:
+## Step 2: Cook a map
 
 ```bash
-docker run --rm -it \
-  -e GIT_DISCOVERY_ACROSS_FILESYSTEM=1 \
-  -v "$PWD/carla-build:/home/carla/carla/Build" \
-  carla-editor:0.9.15-ubuntu20.04
+bash cook-carla-map.sh [options] <map-folder> [map-name]
 ```
 
-`GIT_DISCOVERY_ACROSS_FILESYSTEM=1` is required because CARLA's scripts call `git` from inside `Build/`. Without it, git stops at the mount boundary and fails with `not a git repository`.
+The script copies the map folder into the project, works out the map name (the
+`.umap`) and its location inside `Content/` from the `/Game/...` paths stored
+in the `.umap`, writes a `Package.json`, and runs
+`make package ARGS="--packages=<package>"` inside the editor image.
 
-Do not delete `carla-build/` unless you want to rebuild the third-party dependencies.
+Options (all optional; everything is detected from the folder unless
+overridden):
 
-## Caches and files
+| Option | Meaning |
+|--------|---------|
+| `-o, --output DIR` | Host folder for the package and the log (default: `<script folder>/cooked-maps`) |
+| `--dest REL_PATH` | Content-relative location of the map folder |
+| `--package NAME` | Package name (default: map name) |
+| `--package-root NAME` | `Content/<NAME>/Config` gets the `Package.json` (default: first folder of the destination) |
+| `--game-path PATH` | The `path` written to the `Package.json` |
+| `--no-carla-materials` | Write `"use_carla_materials": false` (default: `true`) |
+| `--image IMAGE` | Editor Docker image (default: `carla-editor:0.9.15-ubuntu20.04`) |
+| `-h, --help` | Print usage |
 
-| Location | Contents |
-|----------|----------|
-| `./carla-build/` (host) | CARLA third-party dependencies (boost, proj, patchelf, and others) |
-| BuildKit cache `carla-content-0.9.15` | The downloaded CARLA Content archive |
-| Docker layer cache | Unreal Engine build and the other Phase 1 layers |
-| `<IMAGE_NAME>-base` | Intermediate image from Phase 1 |
+Environment variables: `IMAGE_NAME`, `OUTPUT_DIR`, `USE_CARLA_MATERIALS`,
+`DEST_REL`, `PACKAGE_NAME`, `PACKAGE_ROOT`, `GAME_PATH_OVERRIDE`, `BUILD_DIR`.
 
-Inspect BuildKit cache usage with `docker buildx du`.
+Output (in the output folder):
 
-## Working with the editor and cooking
+- `<package>*.tar.gz` — the cooked package
+- `<package>.Package.json` — the config that was used
+- `<map-name>-cook-<time>.log` — full console log
 
-Start the container as shown above. Graphics and GUI use of the editor needs extra Docker options (X11 or Wayland forwarding, GPU access, for example `--gpus all`), which depend on your host. For cooking maps from the Digital Twin Tool, follow the CARLA documentation for importing and packaging maps. Depending on your workflow, you may also need `make PythonAPI` inside the container, using the same `Build/` mount.
+## Importing the cooked map package
 
-To keep your own data, mount extra folders (for example, your map files) into the container with additional `-v` options.
-
-## Cooking: `cook-carla-map.sh` vs `cook-carla-map-full-build.sh`
-
-Both scripts take a Digital Twin Tool map folder as their argument.
-
-**`cook-carla-map.sh`** (fast) cooks only your map into a small package (`.tar.gz`) that is meant to be imported into a prebuilt CARLA binary with `ImportAssets.sh`. Known problem: Digital Twin maps crash prebuilt 0.9.15 binaries at runtime. The cause is a bug in the stock UE 4.26 distance-field code that CARLA fixed in its engine fork after the 0.9.15 release (see [carla-simulator/carla#8696](https://github.com/carla-simulator/carla/issues/8696), engine commit `a288ae07` on the `CarlaUnreal/UnrealEngine` `carla` branch). The prebuilt binaries predate that fix; an image built with this repository's build script does not.
-
-**`cook-carla-map-full-build.sh`** (slow) is the alternative: it bakes the map into a complete CARLA release, so the map and the binaries all come from the same (fixed) engine. Concretely it
-
-1. copies the map folder into `Content/` (location detected from the `.umap`, as in the other script),
-2. registers the map in `Unreal/CarlaUE4/Config/DefaultGame.ini` (`+MapsToCook=...`) and stages its `OpenDrive/` (and `Nav/`, `TM/`) folder as UFS, so the server can read the `.xodr` at runtime,
-3. runs the official release pipeline `make package` (cooks **all** maps plus yours, builds the CARLA binaries),
-4. extracts the resulting `CARLA_<version>_<map>.tar.gz` into `<output>/CARLA_<version>_<map>/` on the host and builds a lightweight runtime image (default `carla-runtime:0.9.15`: `ubuntu:18.04` + `libsdl2-2.0 libvulkan1 libomp5`, no CARLA content baked in),
-5. prints the command to run the build mounted from the host:
+Copy the `.tar.gz` into the `Import/` folder of your CARLA installation and
+run `ImportAssets.sh`; it extracts the package over the CARLA root. Then start
+CARLA with your map (the `/Game/...` path is printed by the cook script and
+written to the `Package.json`):
 
 ```bash
-cook-carla-map-full-build.sh [options] <map-folder> [map-name]
-
-# afterwards (command also printed at the end of the run):
-docker run --rm -it --gpus all --net=host \
-  -v "$PWD/carla-builds/CARLA_0.9.15-dirty_<map>:/carla" \
-  carla-runtime:0.9.15 ./CarlaUE4.sh -map=/Game/CustomMaps/<folder>/<map>
+./CarlaUE4.sh -map=/Game/<path>/<map-name>
 ```
 
-Useful options: `--set-default-map` (load your map at startup without `-map=`), `--config {Shipping,Development,Debug}`, `--archive-sufix`, `--runtime-image TAG`, `--runtime-base IMAGE` (e.g. `ubuntu:20.04` if you hit missing glibc symbols), `--no-runtime-image`. The script verifies that the `.xodr` made it into the final package and, on failure, detects the distance-field crash signature from #8696 in the log.
 
-**Costs:** this is a full release build, not a per-map cook. Expect several hours (all CARLA maps are cooked and the client binaries are compiled) and roughly 60–80 GB of free space on the Docker volume (staging folder + tarball + extracted build). The first run also builds the Python API (`Build/` keeps it cached for later runs).
-
-If a full build fails with the distance-field crash even though the map cooked fine before, the editor image's engine fork is older than the fix: rebuild the editor image (fresh clone of the `carla` branch) and retry.
-
-## Troubleshooting
-
-**The Unreal Engine `git clone` fails** (for example "repository not found" or an authentication error). Check that your GitHub account is a member of the Epic Games organisation (accept the invitation email or the invitation on GitHub), that `EPIC_USER` and `EPIC_PASS` are correct, and that the token has read access to private repositories.
-
-**Content download fails with HTTP 403.** The original S3 URL for the CARLA content is dead. The script patches it to a mirror. If it still fails, check that the mirror serves the file:
-
-```bash
-curl -I https://carla-assets.s3.us-east-005.backblazeb2.com/20231108_c5101a5.tar.gz
-```
-
-**A `sed` patch does not apply.** The patch step fails on purpose with a `grep` check, because `sed -i` silently does nothing when its pattern does not match. Note that the Dockerfile is written from a quoted heredoc, so `sed` patterns there use a single backslash (`\.`), not two.
-
-**`aclocal: No such file or directory`.** `automake` is missing. The script installs it in its own small layer after the patches, so the Unreal Engine layers stay cached.
-
-**`fatal: not a git repository ... Stopping at filesystem boundary`.** `GIT_DISCOVERY_ACROSS_FILESYSTEM=1` is not set. The script sets it for Phase 2. Set it yourself when running the image.
-
-**Permission errors on `carla-build/`.** The script runs `chmod 777` on the folder because the container user has uid 1000. On SELinux hosts, add `:z` to the `-v` option.
-
-**A dependency folder in `carla-build/` is half finished** after an interrupted run. Delete only that folder (for example `rm -rf carla-build/patchelf*`) and rerun the script.
-
-**Phase 2 restarts the editor compile.** Phase 2 is not layer-cached. If `make CarlaUE4Editor` fails, the compile starts over on the next run, although `Build/` is reused.
-
-## Notes
-
-- Ubuntu 20.04, clang-10 and Unreal Engine 4.26 are the combination CARLA 0.9.15 expects. Changing them is likely to break the build.
-- The script depends on external download locations (GitHub, Backblaze mirrors, SourceForge, boost archives). If one disappears, the corresponding `sed` patch in the Dockerfile section needs updating.
+> [!IMPORTANT] CARLA compatibility
+>
+> For the map to work in CARLA, you need a CARLA build with the correct revision and the patches from this repository applied. One easy way to obtain a compatible CARLA build is to use the one from https://github.com/das-rise/rise-carla-runner#running-digital-twin-tool-maps.
