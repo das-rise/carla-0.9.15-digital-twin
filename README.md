@@ -1,7 +1,9 @@
-# RiDiFlo (RISE CARLA 0.9.15 Digital Twin Flow)
+<h1>
+  <img src="images/ridiflo.png" width="100" align="left" />
+  RiDiFlo 
+</h1>
 
-> [!NOTE]
-> This open source project is developed by [RISE Research Institutes of Sweden](https://ri.se/). See license file for open source license information.
+*(RISE CARLA 0.9.15 Digital Twin Flow)*
 
 This repository consists of two parts:
 1. A source patch for **CARLA 0.9.15** that extends CARLA's Unreal Engine map-generation workflow for creating a single-level digital twin from paired **OpenStreetMap (`.osm`)** and **OpenDRIVE (`.xodr`)** files
@@ -27,6 +29,9 @@ The patch was developed and tested with CARLA 0.9.15, Unreal Engine 4.26, and Ub
 
 > [!NOTE]
 > The patch contains more than the minimum digital-twin generator changes. Review the changes under `PythonAPI/` before using the patch in a production or research branch.
+
+> [!NOTE]
+> This open source project is developed by [RISE Research Institutes of Sweden](https://ri.se/). See license file for open source license information.
 
 ---
 
