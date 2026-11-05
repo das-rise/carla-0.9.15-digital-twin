@@ -1,6 +1,11 @@
-# CARLA 0.9.15 Digital Twin
+# RiDiFlo (RISE CARLA 0.9.15 Digital Twin Flow)
 
-A source patch for **CARLA 0.9.15** that extends CARLA's Unreal Engine map-generation workflow for creating a single-level digital twin from paired **OpenStreetMap (`.osm`)** and **OpenDRIVE (`.xodr`)** files, and extends the CARLA Python API with a simulation runner that can record camera footage of scripted ego and NPC vehicle drives.
+> [!NOTE]
+> This open source project is developed by [RISE Research Institutes of Sweden](https://ri.se/). See license file for open source license information.
+
+This repository consists of two parts:
+1. A source patch for **CARLA 0.9.15** that extends CARLA's Unreal Engine map-generation workflow for creating a single-level digital twin from paired **OpenStreetMap (`.osm`)** and **OpenDRIVE (`.xodr`)** files
+2. A workflow for *cooking* the digital twin map such that it can be used in CARLA 0.9.15 simulations.
 
 The patch was developed and tested with CARLA 0.9.15, Unreal Engine 4.26, and Ubuntu 22.04. It modifies CARLA, LibCarla, CarlaTools, the bundled StreetMap plugin, and selected build and navigation components.
 
@@ -18,7 +23,6 @@ The patch was developed and tested with CARLA 0.9.15, Unreal Engine 4.26, and Ub
 - Selectable bidirectional center-line styles.
 - More deterministic multithreaded road and junction mesh generation.
 - Improved tree placement near road edges and junction approaches.
-- Extended `automatic_control.py` with reproducible seeds, explicit spawn and target transforms, NPC vehicle agents, simulation time limits, multiple camera views, and MP4 recording via ffmpeg.
 - Selected CARLA Python navigation changes used to test generated maps.
 
 > [!NOTE]
@@ -291,7 +295,13 @@ into a running CARLA installation. See
 
 ---
 
-## Acknowledgements
+## Acknowledgments
+
+This software was developed as part of the [Synergies](https://synergies-ccam.eu/) project.
+
+![Synergies-logo](media/synergies.png)
+
+Funded by the European Union. Views and opinions expressed are however those of the author(s) only and do not necessarily reflect those of the European Union or European Climate, Infrastructure and Environment Executive Agency (CINEA). Neither the European Union nor the granting authority can be held responsible for them.
 
 - [CARLA Simulator](https://carla.org/)
 - [CARLA 0.9.15 Linux build documentation](https://carla.readthedocs.io/en/0.9.15/build_linux/)
